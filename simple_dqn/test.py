@@ -1,17 +1,17 @@
-from __future__ import print_function
-import gym
-from gym import wrappers
+from __future__ import print_function # To import the print function from the future version of python
+import gym 
+from gym import wrappers # Wrappers to manipulate custom written functions. In this case these wrappers are used to manipulate env
 import tensorflow as tf
-import tensorflow.contrib.slim as slim
+import tensorflow.contrib.slim as slim # Slim is an interface for contrib functions. Contrib module contains experimental code
 import numpy as np
 from scipy.misc import imresize
-from collections import deque
-import sys
-import os
-import random
-import cv2
+from collections import deque # Deque are double ended queues. They are generalised forms of stacks and queues
+import sys # Contains variables used by interpreter of python
+import os # For manipulating files of the system
+import random # This module generates random numers form various distributions
+import cv2 # Brings in OpenCV packages
 
-flags = tf.app.flags
+flags = tf.app.flags 
 flags.DEFINE_boolean('train', True, 'Whether to do training or testing')
 flags.DEFINE_string('env_name', 'Pong', 'The name of gym environment to use')
 
@@ -43,7 +43,7 @@ def preprocess(frame):
     return x
 
 def weight_variable(name, shape):
-    initial = tf.contrib.layers.xavier_initializer()
+    initial = tf.contrib.layers.xavier_initializer() # This initializes the weights as implemented in Xavier Glorot and Yoshua Bengio (2010): Understanding the difficulty of training deep feedforward neural networks. International conference on artificial intelligence and statistics.
     return tf.get_variable(name = name, shape = shape, initializer = initial)
 
 def bias_variable(shape):
@@ -58,7 +58,7 @@ def max_pool_2x2(x):
 
 class dqn():
 
-    def __init__(self, clip_delta, scope, discount):
+    def __init__(self, clip_delta, scope, discount): # The double underscores prevents the usage of the same name in different modules
 
         self.clip_delta = clip_delta
         self.scope = scope
