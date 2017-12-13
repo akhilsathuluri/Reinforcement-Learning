@@ -10,30 +10,33 @@ import sys # Contains variables used by interpreter of python
 import os # For manipulating files of the system
 import random # This module generates random numers form various distributions
 import cv2 # Brings in OpenCV packages
-
-flags = tf.app.flags 
-flags.DEFINE_boolean('train', True, 'Whether to do training or testing')
+# Flags are basically Googles way of parsing commandline statements
+flags = tf.app.flags # It helps give out errors when something  wrong goes inside
+flags.DEFINE_boolean('train', True, 'Whether to do training or testing') # If the train variable is true then it displays the required tet in the inverted commas
 flags.DEFINE_string('env_name', 'Pong', 'The name of gym environment to use')
 
-env = gym.make(flags.FLAGS.env_name + 'NoFrameskip-v0')
+env = gym.make(flags.FLAGS.env_name + 'NoFrameskip-v0') # This basically loads the required environment
+# There must be a gym.make here to initialize the environment, this returns a number which is basically out initial state
+# We might use env.render() (Optionally) to visualise the initial returned state
 
-ACTIONS = env.action_space.n
-INITIAL_EPSILON = 1.
-FINAL_EPSILON = 0.05
-REPLAY_MEMORY = 1000000
+ACTIONS = env.action_space.n #Using the .n at the end returns the total possible action_space value.
+# We can generate a random action by using env.action_space.sample()
+INITIAL_EPSILON = 1. # Epsilon at the beginning 
+FINAL_EPSILON = 0.05 # Epsilon at the end of annealing
+REPLAY_MEMORY = 1000000 # The number of saved episodes in the memory
 max_episodes = 100000
-BATCH = 32
-GAMMA = 0.99
-max_iter = 5000
+BATCH = 32 # The number of transitions to be collected from the replay_memory for Q update
+GAMMA = 0.99 # Discount factor or simply the analogous to the horizon in a sense
+max_iter = 5000 # Max iterations per episode
 
-def rgb2gray(frame):
+def rgb2gray(frame): # Function to convert a given frame to grayscale
 
     r, g, b = frame[:,:,0], frame[:,:,1], frame[:,:,2]
     gray = 0.2989 * r + 0.5870 * g + 0.1140 * b
 
     return gray
 
-def preprocess(frame):
+def preprocess(frame): # Function to reshape the grayscale image
 
     gray_image = rgb2gray(frame)
     reshaped_image = cv2.resize(gray_image.astype(np.float32), (84, 84))
@@ -43,17 +46,18 @@ def preprocess(frame):
     return x
 
 def weight_variable(name, shape):
+    # The tf.contrib.layers contain all the ops for initialising a neural network
     initial = tf.contrib.layers.xavier_initializer() # This initializes the weights as implemented in Xavier Glorot and Yoshua Bengio (2010): Understanding the difficulty of training deep feedforward neural networks. International conference on artificial intelligence and statistics.
-    return tf.get_variable(name = name, shape = shape, initializer = initial)
+    return tf.get_variable(name = name, shape = shape, initializer = initial) # This creates a new variable as asked i.e. the name, shape and the initialization of the variable
 
 def bias_variable(shape):
     initial = tf.constant(0.01, shape = shape)
-    return tf.Variable(initial)
+    return tf.Variable(initial) # This can be done or we can initialize it using the same tf.get_variable() again
 
 def conv2d(x, W, stride):
-    return tf.nn.conv2d(x, W, strides = [1, stride, stride, 1], padding = "VALID")
+    return tf.nn.conv2d(x, W, strides = [1, stride, stride, 1], padding = "VALID") # x is input, W is the filter, stride and padding are the next two arguments
 
-def max_pool_2x2(x):
+def max_pool_2x2(x): # Here a pool max of 2x2 is used to reduce the size of the image we have
     return tf.nn.max_pool(x, ksize = [1, 2, 2, 1], strides = [1, 2, 2, 1], padding = "SAME")
 
 class dqn():
@@ -183,7 +187,7 @@ def rollout(sess, q_network, target_network):
             if epsilon > FINAL_EPSILON:
                 epsilon -= (INITIAL_EPSILON - FINAL_EPSILON) / 100000
 
-            ob, reward, done, info = env.step(action_index)
+            ob, reward, done, info = env.step(action_index) # This moves a step in the simulation 
 
             REWARD = reward
             if reward > 1:
